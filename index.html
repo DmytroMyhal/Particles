@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Canvas</title>
+    <link rel="stylesheet" href="./css/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+</head>
+<body>
+  <canvas id="particles"></canvas>
+  <script>
+    const options = {
+      canvas: {
+        //width: 100, //positive number
+        //height: 100, //positive number
+        color: {r:0,g:0,b:0}, //{r,g,b}
+        trailing: 0, //number(0-1)
+        spaceDensity: .995, //number(0-1)
+        borders: {
+          top: true, //bool
+          left: true, //bool
+          bottom: true, //bool
+          right: true //bool
+        },
+        gravity: {
+          x: 0, //number
+          y: .2 //number
+        }
+      },
+      cursor: {
+        size: 0, //positive number
+        //captureRadius: 150, //positive number
+        gravity: .3, //positive number
+        //linesRadius: 100, //positive number
+      },
+      gravityPoints: {
+        size: 3, //positive number
+        //captureRadius: 150, //positive number
+        gravity: .3, //positive number
+        linesRadius: 100, //positive number
+      },
+      particles: {
+        count: 100, //positive number
+        size: 2, //positive number
+        speed: 3, //positive number
+        color: 'random', //{r,g,b,a} or 'random'
+        opacity: 1, //number(0-1)
+        linesRadius: 0, //positive number
+        elasticity: .8 //number(0-1)
+      }
+    }
+  </script>
+  <script src="./js/script.js"></script>
+</body>
+</html>
