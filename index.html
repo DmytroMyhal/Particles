@@ -14,7 +14,7 @@
         //height: 100, //positive number
         color: {r:0,g:0,b:0}, //{r,g,b}
         trailing: 0, //number(0-1)
-        spaceDensity: .995, //number(0-1)
+        spaceDensity: .005, //number(0-1)
         borders: {
           top: true, //bool
           left: true, //bool
@@ -23,7 +23,7 @@
         },
         gravity: {
           x: 0, //number
-          y: .2 //number
+          y: 0 //number
         }
       },
       cursor: {
@@ -39,13 +39,17 @@
         linesRadius: 100, //positive number
       },
       particles: {
-        count: 100, //positive number
+        count: 200, //positive number
         size: 2, //positive number
-        speed: 3, //positive number
+        speed: {
+          start: 2,
+          max: 2,
+          min: 2
+        },
         color: 'random', //{r,g,b,a} or 'random'
         opacity: 1, //number(0-1)
         linesRadius: 0, //positive number
-        elasticity: .8 //number(0-1)
+        elasticity: 1 //number(0-1)
       }
     }
   </script>

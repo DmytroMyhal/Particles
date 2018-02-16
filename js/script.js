@@ -85,12 +85,12 @@ class Point {
 
   setVelocity() {
     if('speed' in options.particles) {
-      this.maxSpeed = Array.isArray(options.particles.speed) ?
-        getRandomFromRange(options.particles.speed) :
-        options.particles.speed;
+      let startSpeed = Array.isArray(options.particles.speed.start) ?
+        getRandomFromRange(options.particles.speed.start) :
+        options.particles.speed.start;
       
-      this.vel.x = this.maxSpeed*getRandomFromRange([-1,1]);
-      this.vel.y = getRandomSign()*getSecondCoordinate(this.vel.x, this.maxSpeed);
+      this.vel.x = startSpeed*getRandomFromRange([-1,1]);
+      this.vel.y = getRandomSign()*getSecondCoordinate(this.vel.x, startSpeed);
     }
   }
   
@@ -116,6 +116,22 @@ class Point {
   }
 
   render() {
+    this.vel.x += this.acc.x;
+    this.vel.y += this.acc.y;
+    
+    let speed = this.getVelocity();
+    if('max' in options.particles.speed)
+      if(speed > options.particles.speed.max) {
+        this.vel.x *= ('spaceDensity' in options.canvas) ? 1 - options.canvas.spaceDensity : .995;
+        this.vel.y *= ('spaceDensity' in options.canvas) ? 1 - options.canvas.spaceDensity : .995;
+      }
+    
+    if('min' in options.particles.speed)
+      if(speed < options.particles.speed.min) {
+        this.vel.x *= ('spaceDensity' in options.canvas) ? 1 + options.canvas.spaceDensity : 1.005;
+        this.vel.y *= ('spaceDensity' in options.canvas) ? 1 + options.canvas.spaceDensity : 1.005;
+      }
+    
     this.x += this.vel.x;
     this.y += this.vel.y;
 
@@ -135,15 +151,6 @@ class Point {
       this.x = canvas.width - this.size;
       this.vel.x *= -options.particles.elasticity || -1;
     };
-    
-    this.vel.x += this.acc.x;
-    this.vel.y += this.acc.y;
-    
-    let speed = this.getVelocity();
-    if(speed > this.maxSpeed) {
-      this.vel.x *= options.canvas.spaceDensity || .99;
-      this.vel.y *= options.canvas.spaceDensity || .99;
-    }
     
     if(cursor.active) {
       let distanceToCursor = getDistance(this, cursor);
@@ -246,7 +253,7 @@ cursor.active = false;
 if(options.particles.count > 0) {
   for(let i = 0; i < options.particles.count; i++) {
     let point = new Point(Math.floor(Math.random()*canvas.width),Math.floor(Math.random()*canvas.height), options.particles);
-    if(options.particles.speed) point.setVelocity();
+    if(options.particles.speed.start) point.setVelocity();
     particles.push(point);
   }
 }
