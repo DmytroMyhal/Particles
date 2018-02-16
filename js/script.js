@@ -1,7 +1,5 @@
 const canvas = document.querySelector('#particles');
 const ctx = canvas.getContext('2d');
-const particles = [];
-const gravityTargets = [];
 
 const getRandomFromRange = (range) => {
   if(range[0] > range[1])
@@ -50,6 +48,26 @@ const connect = (startPoint, endPoint, maxLength) => {
   }
 }
 
+const canvasResize = () => {
+  canvas.width = options.canvas.width || window.innerWidth;
+  canvas.height = options.canvas.height || window.innerHeight;
+}
+
+const canvasSetBGColor = (colorObj) => {
+  if('r' in colorObj && 'g' in colorObj && 'b' in colorObj)
+    canvas.style.backgroundColor = getRGBA(colorObj, 1);
+  else
+    throw new Error('Canvas color error: There are no values for all RGB channels');
+}
+
+const createParticles = (count) => {
+  for(let i = 0; i < count; i++) {
+    let point = new Point(Math.floor(Math.random()*canvas.width),Math.floor(Math.random()*canvas.height), options.particles);
+    if(options.particles.speed.start) point.setVelocity();
+    particles.push(point);
+  }
+}
+ 
 class Point {
   constructor(x, y, opt) {
     this.x = x;
@@ -175,6 +193,10 @@ class GravityPoint extends Point {
   }
 }
 
+const cursor = new GravityPoint(null, null, options.cursor);
+const particles = [];
+const gravityTargets = [];
+
 function update() {
   let BGopacity = 'trailing' in options.canvas ? (1 - options.canvas.trailing) : 1;
   ctx.fillStyle = getRGBA(options.canvas.color, BGopacity);
@@ -232,30 +254,12 @@ canvas.ontouchstart = canvas.ontouchmove = function(e) {
 
 canvas.onmouseout = canvas.ontouchend = () => cursor.active = false;
 
-//main
-canvas.width = options.canvas.width || window.innerWidth;
-canvas.height = options.canvas.height || window.innerHeight;
+window.onload = () => {
+  canvasResize();
+  canvasSetBGColor(options.canvas.color = {r:0,g:0,b:0});
+  
+  cursor.active = false;
+  createParticles(options.particles.count);
 
-if(options.canvas.color) {
-  if('r' in options.canvas.color && 'g' in options.canvas.color && 'b' in options.canvas.color)
-    canvas.style.backgroundColor = getRGBA(options.canvas.color, 1);
-  else
-    throw new Error('Canvas color error: There are no values for all RGB channels');
+  window.requestAnimationFrame(update);
 }
-else {
-  canvas.style.backgroundColor = '#000';
-  options.canvas.color = {r:0,g:0,b:0};
-}
-
-const cursor = new GravityPoint(null, null, options.cursor);
-cursor.active = false;
-
-if(options.particles.count > 0) {
-  for(let i = 0; i < options.particles.count; i++) {
-    let point = new Point(Math.floor(Math.random()*canvas.width),Math.floor(Math.random()*canvas.height), options.particles);
-    if(options.particles.speed.start) point.setVelocity();
-    particles.push(point);
-  }
-}
-
-window.requestAnimationFrame(update);
