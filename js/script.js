@@ -65,7 +65,13 @@ const canvasSetBGColor = (colorObj) => {
 const createParticles = (count) => {
   for(let i = 0; i < count; i++) {
     let point = new Point(Math.floor(Math.random()*canvas.width),Math.floor(Math.random()*canvas.height), options.particles);
-    if(options.particles.speed.start) point.setVelocity();
+    
+    if('speed' in options.particles) {
+      point.setVelocity(Array.isArray(options.particles.speed.start) ?
+        getRandomFromRange(options.particles.speed.start) :
+        options.particles.speed.start);
+    }
+    
     particles.push(point);
   }
 }
@@ -89,14 +95,6 @@ class Point {
     else 
       this.size = 1;
     
-    if('speed' in opt) {
-      this.startSpeed = Array.isArray(opt.speed.start) ?
-        getRandomFromRange(opt.speed.start) :
-        opt.speed.start;
-    }
-    else 
-      this.startSpeed = 0;
-    
     if('color' in opt) {
       if(opt.color == 'random')
         this.color = getRandomColor();
@@ -111,9 +109,9 @@ class Point {
       this.color = {r:255,g:255,b:255};
   }
 
-  setVelocity() {
-    this.vel.x = this.startSpeed*getRandomFromRange([-1,1]);
-    this.vel.y = getRandomSign()*getSecondCoordinate(this.vel.x, this.startSpeed);
+  setVelocity(speed) {
+    this.vel.x = speed*getRandomFromRange([-1,1]);
+    this.vel.y = getRandomSign()*getSecondCoordinate(this.vel.x, speed);
   }
   
   setAccelerate(targets) {
