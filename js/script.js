@@ -32,6 +32,7 @@ const connect = (startPoint, endPoint, maxLength) => {
     let opacity = 1 - distance/maxLength;
 
     let color;
+    
     if(compareColorObjects(startPoint.color, endPoint.color))
       color = getRGBA(startPoint.color, opacity);
     else {
@@ -41,6 +42,7 @@ const connect = (startPoint, endPoint, maxLength) => {
     }
 
     ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(startPoint.x, startPoint.y);
     ctx.lineTo(endPoint.x, endPoint.y);
@@ -87,6 +89,14 @@ class Point {
     else 
       this.size = 1;
     
+    if('speed' in opt) {
+      this.startSpeed = Array.isArray(opt.speed.start) ?
+        getRandomFromRange(opt.speed.start) :
+        opt.speed.start;
+    }
+    else 
+      this.startSpeed = 0;
+    
     if('color' in opt) {
       if(opt.color == 'random')
         this.color = getRandomColor();
@@ -102,14 +112,8 @@ class Point {
   }
 
   setVelocity() {
-    if('speed' in options.particles) {
-      let startSpeed = Array.isArray(options.particles.speed.start) ?
-        getRandomFromRange(options.particles.speed.start) :
-        options.particles.speed.start;
-      
-      this.vel.x = startSpeed*getRandomFromRange([-1,1]);
-      this.vel.y = getRandomSign()*getSecondCoordinate(this.vel.x, startSpeed);
-    }
+    this.vel.x = this.startSpeed*getRandomFromRange([-1,1]);
+    this.vel.y = getRandomSign()*getSecondCoordinate(this.vel.x, this.startSpeed);
   }
   
   setAccelerate(targets) {
@@ -150,8 +154,16 @@ class Point {
         this.vel.y *= ('spaceDensity' in options.canvas) ? 1 + options.canvas.spaceDensity : 1.005;
       }
     
+    ctx.strokeStyle = getRGBA(this.color, this.opacity);
+    ctx.beginPath();
+    ctx.moveTo(this.x, this.y);
+    
     this.x += this.vel.x;
     this.y += this.vel.y;
+    
+    ctx.lineTo(this.x, this.y);
+    ctx.lineWidth = this.size*2;
+    ctx.stroke();
 
     if(options.canvas.borders.top && this.y < this.size) {
       this.y = this.size;
@@ -203,9 +215,8 @@ function update() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
   particles.forEach((particle, i) => {
-    particle.render();      
+    particle.render();
 
-    let distance = getDistance(cursor, particle);
     let targets = [];
 
     if(cursor.active) {
@@ -241,11 +252,6 @@ canvas.onclick = function(e) {
   gravityTargets.push(gravityPoint);
 }
 
-canvas.ontouchstart = function(e) {
-  let gravityPoint = new GravityPoint(e.touches[0].clientX + canvas.offsetLeft, e.touches[0].clientY + canvas.offsetTop, options.gravityPoints);
-  gravityTargets.push(gravityPoint);
-}
- 
 canvas.ontouchstart = canvas.ontouchmove = function(e) {
   cursor.x = e.touches[0].clientX + canvas.offsetLeft;
   cursor.y = e.touches[0].clientY + canvas.offsetTop;
@@ -258,7 +264,6 @@ window.onload = () => {
   canvasResize();
   canvasSetBGColor(options.canvas.color = {r:0,g:0,b:0});
   
-  cursor.active = false;
   createParticles(options.particles.count);
 
   window.requestAnimationFrame(update);
